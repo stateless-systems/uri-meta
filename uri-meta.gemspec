@@ -14,13 +14,13 @@ Gem::Specification.new do |s|
   s.email = %q{production@statelesssystems.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README.rdoc"
+     "README.markdown"
   ]
   s.files = [
     ".document",
      ".gitignore",
      "LICENSE",
-     "README.rdoc",
+     "README.markdown",
      "Rakefile",
      "VERSION",
      "lib/uri/meta.rb",
