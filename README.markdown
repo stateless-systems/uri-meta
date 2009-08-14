@@ -1,8 +1,8 @@
 # uri-meta: Get meta information about your URI
 
-uri-meta is a ruby interface to the http://www.metauri.com/ service.
+uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) service.
 
-metauri.com provides two things:
+[metauri.com](http://www.metauri.com/) provides two things:
 
  * follows your URI to the end point where there is actual content instead of redirects
  * obtains meta information (title etc) about that end URI
@@ -24,19 +24,24 @@ metauri.com provides two things:
 
 ## Caching
 
-uri-meta uses in-memory caching via wycats-moneta, so it should be relatively
-straight forward for you to use whatever other caching mechanism you want,
+uri-meta uses in-memory caching via [http://github.com/wycats/moneta](wycats-moneta), so it
+should be relatively straight forward for you to use whatever other caching mechanism you want,
 provided it's supported by moneta.
 
     require 'uri'
     require 'uri/meta'
+
+    # Memcached
     URI::Meta::Cache.moneta = Moneta::Memcache.new(:server => 'localhost')
     URI::Meta::Cache.expires_in = (60 * 60 * 24 * 7) # 1 week
+
+    # No caching (if you have long running processes)
+    URI::Meta::Cache.moneta = nil
 
 ## Known Issues
 
  * Redirects that aren't handled by the webserver (302), such as javascript or
-   <meta> tag redirects are not supported yet.
+   &lt;meta&gt; tag redirects are not supported yet.
  * Framed redirects, such as stumbleupon are not resolved yet, as these are
    techincally full pages it could be difficult to know that it's not really
    then end URI.

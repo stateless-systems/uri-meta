@@ -39,11 +39,11 @@ module URI
 
       class << self
         def store(key, url)
-          @@moneta.store(key, url, :expires_in => @@expires_in)
+          @@moneta.store(key, url, :expires_in => @@expires_in) unless @@moneta.nil?
         end
 
         def get(key)
-          @@moneta[key]
+          @@moneta[key] unless @@moneta.nil?
         end
 
         def moneta=(moneta)
