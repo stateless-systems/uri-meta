@@ -24,7 +24,7 @@ uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) servi
 
 ## Caching
 
-uri-meta uses in-memory caching via [http://github.com/wycats/moneta](wycats-moneta), so it
+uri-meta uses in-memory caching via [wycats-moneta](http://github.com/wycats/moneta), so it
 should be relatively straight forward for you to use whatever other caching mechanism you want,
 provided it's supported by moneta.
 
