@@ -11,6 +11,7 @@ begin
     gem.homepage = "http://github.com/stateless-systems/uri-meta"
     gem.authors = ["Stateless Systems"]
     gem.add_dependency "taf2-curb"
+    gem.add_dependency "wycats-moneta"
     gem.add_development_dependency "thoughtbot-shoulda"
   end
 rescue LoadError

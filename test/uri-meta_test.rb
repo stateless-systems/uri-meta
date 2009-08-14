@@ -1,10 +1,10 @@
 require 'test_helper'
 
 class UriMetaTest < Test::Unit::TestCase
-  context 'URI.parse(http://staging.metauri.com/)' do
+  context 'URI.parse(http://www.metauri.com/)' do
     context '.meta' do
       setup do
-        @uri = URI.parse('http://staging.metauri.com/')
+        @uri = URI.parse('http://www.metauri.com/')
       end
 
       should 'exist' do
@@ -65,9 +65,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://staging.metauri.com/redirect)' do
+  context 'URI.parse(http://www.metauri.com/redirect)' do
     setup do
-      @uri = URI.parse('http://staging.metauri.com/redirect')
+      @uri = URI.parse('http://www.metauri.com/redirect')
     end
 
     context '.meta' do
