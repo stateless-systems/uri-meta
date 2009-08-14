@@ -34,20 +34,21 @@ module URI
       end
 
     class Cache
-      @@moneta     = Moneta::Memory.new
+      @@cache      = Moneta::Memory.new
       @@expires_in = 86_400 # 24 hours
 
       class << self
         def store(key, url)
-          @@moneta.store(key, url, :expires_in => @@expires_in) unless @@moneta.nil?
+          @@cache.store(key, url, :expires_in => @@expires_in) unless @@cache.nil?
         end
 
         def get(key)
-          @@moneta[key] unless @@moneta.nil?
+          @@cache[key] unless @@cache.nil?
         end
 
-        def moneta=(moneta)
-          @@moneta = moneta
+        def cache=(cache)
+          warn 'Turning off caching is poor form, for longer processes consider using moneta/memcached' if cache.nil?
+          @@cache = cache
         end
 
         def expires_in=(seconds)
