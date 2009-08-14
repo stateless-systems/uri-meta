@@ -81,7 +81,7 @@ class UriMetaTest < Test::Unit::TestCase
 
   context 'URI.parse(garbage).meta' do
     should 'raise errors' do
-      assert_raise ArgumentError do
+      assert_raise URI::InvalidURIError do
         URI.parse('garbage').meta
       end
     end
@@ -94,6 +94,26 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'be a redirect' do
       assert_not_equal 'http://bit.ly/PBzu', @uri.meta.uri
+    end
+  end
+
+  context 'URI.parse(http://taptaptap.com/+MqN).meta' do
+    setup do
+      @uri = URI.parse('http://taptaptap.com/+MqN')
+    end
+
+    should 'escape the + symbol' do
+      assert_nothing_raised do
+        @uri.meta
+      end
+    end
+  end
+
+  context 'URI.parse(http://bit.ly/QYKrH).meta' do
+    should 'raise error on too many redirects' do
+      assert_raise URI::Meta::Error do
+        URI.parse('http://bit.ly/QYKrH').meta
+      end
     end
   end
 end

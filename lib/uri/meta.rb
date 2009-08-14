@@ -15,20 +15,24 @@ module URI
   end
 
   class Meta
+    class Error < ::RuntimeError; end
     attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset
 
     def initialize(uri)
+      uri = URI.parse(uri.to_s) rescue nil
+      raise URI::InvalidURIError.new if uri.nil? or !uri.is_a?(URI::HTTP)
       retrieve!(uri.to_s)
     end
 
     protected
       def retrieve!(uri)
-        curl = Curl::Easy.new('http://www.metauri.com/show.yaml?uri=' + uri)
+        curl = Curl::Easy.new('http://www.metauri.com/show.yaml?uri=' + URI.escape(uri, URI::REGEXP::PATTERN::RESERVED))
         curl.perform
         populate_from_yaml!(YAML.load(curl.body_str))
       end
 
       def populate_from_yaml!(yaml)
+        raise Error.new(yaml[:error]) if yaml[:error]
         yaml[:uri] = URI.parse(yaml[:uri]) rescue yaml[:uri]
         yaml.each{|p| send("#{p[0]}=", p[1]) if respond_to?("#{p[0]}=")}
       end
