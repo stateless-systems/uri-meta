@@ -87,13 +87,13 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://twitpic.com/dnlm1).meta' do
+  context 'URI.parse(http://bit.ly/PBzu).meta' do
     setup do
-      @uri = URI.parse('http://www.metauri.com/redirect')
+      @uri = URI.parse('http://bit.ly/PBzu')
     end
 
     should 'be a redirect' do
-      assert_not_equal 'http://twitpic.com/dnlm1', @uri.meta.uri
+      assert_not_equal 'http://bit.ly/PBzu', @uri.meta.uri
     end
   end
 end
