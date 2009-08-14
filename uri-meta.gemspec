@@ -25,7 +25,8 @@ Gem::Specification.new do |s|
      "VERSION",
      "lib/uri/meta.rb",
      "test/test_helper.rb",
-     "test/uri-meta_test.rb"
+     "test/uri-meta_test.rb",
+     "uri-meta.gemspec"
   ]
   s.homepage = %q{http://github.com/stateless-systems/uri-meta}
   s.rdoc_options = ["--charset=UTF-8"]
