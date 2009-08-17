@@ -32,6 +32,7 @@ class UriMetaTest < Test::Unit::TestCase
 
         should 'not have been a redirect' do
           assert_equal @uri.to_s, @uri.meta.last_effective_uri.to_s
+          assert !@uri.meta.redirect?
         end
       end
 
@@ -84,6 +85,7 @@ class UriMetaTest < Test::Unit::TestCase
       context '.last_effective_uri' do
         should 'be a redirect' do
           assert_not_equal @uri.to_s, @uri.meta.last_effective_uri.to_s
+          assert @uri.meta.redirect?
         end
       end
     end

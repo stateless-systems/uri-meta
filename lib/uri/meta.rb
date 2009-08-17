@@ -30,6 +30,10 @@ module URI
       end
     end
 
+    def redirect?
+      uri != last_effective_uri
+    end
+
     def populate_from_yaml!(yaml)
       raise Error.new(yaml[:error]) if yaml[:error]
       yaml[:uri] = URI.parse(yaml[:uri]) rescue yaml[:uri]

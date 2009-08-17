@@ -19,8 +19,16 @@ uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) servi
     puts uri.meta.content_type
     # image/gif
 
-    puts uri.meta.uri
+    puts uri.meta.last_effective_uri
     # http://clipart.tiu.edu/offcampus/animated/bd13644_.gif
+
+    URI::Meta.multi('http://www.google.com/', 'http://bit.ly/PBzu') do |meta|
+      if meta.redirect?
+        puts "## #{meta.uri} -> #{meta.last_effective_uri}"
+      else
+        puts "## #{meta.uri} did not redirect and it's title was #{meta.title}"
+      end
+    end
 
 ## Caching
 
