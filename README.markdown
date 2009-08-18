@@ -24,13 +24,13 @@ uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) servi
     # image/gif
 
     begin
-      meta = URI.parse('http://bit.ly/PBzu').meta(:max_redirects = 1)
+      meta = URI.parse('http://bit.ly/PBzu').meta(:max_redirects = 2)
+      puts meta.last_effective_uri
+      # http://clipart.tiu.edu/offcampus/animated/bd13644_.gif
     rescue URI::Meta::Error => e
       puts "Oh noes, too many redirects!"
     end
 
-    puts uri.meta.last_effective_uri
-    # http://clipart.tiu.edu/offcampus/animated/bd13644_.gif
 
     URI::Meta.multi(['http://www.google.com/', 'http://bit.ly/PBzu'], :max_redirects => 10) do |meta|
       # Don't rely on these being processed in the same order they were listed!
