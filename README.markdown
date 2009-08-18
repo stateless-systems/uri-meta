@@ -16,6 +16,8 @@ uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) servi
     # Google
     puts uri.meta.status
     # 200
+    puts uri.meta(:headers => 1).headers
+    # HTTP/1.1 .... etc
 
     uri = URI.parse('http://bit.ly/PBzu')
     puts uri.meta.content_type

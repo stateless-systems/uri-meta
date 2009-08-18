@@ -19,82 +19,102 @@ URI::Meta::Cache.cache = URIMetaTestCache.new
 
 class UriMetaTest < Test::Unit::TestCase
   context 'URI.parse(http://www.metauri.com/)' do
+    setup do
+      @uri = URI.parse('http://www.metauri.com/')
+    end
+
+    should 'respond_to :meta' do
+      assert_respond_to @uri, :meta
+    end
+
     context '.meta' do
       setup do
-        @uri = URI.parse('http://www.metauri.com/')
-      end
-
-      should 'exist' do
-        assert_respond_to @uri, :meta
+        @meta = @uri.meta
       end
 
       should 'be a URI::Meta object' do
-        assert_kind_of URI::Meta, @uri.meta
+        assert_kind_of URI::Meta, @meta
       end
 
       context '.uri' do
         should 'be a URI object' do
-          assert_kind_of URI, @uri.meta.uri
+          assert_kind_of URI, @meta.uri
         end
 
         should 'be the same as the original URI' do
-          assert_equal @uri.to_s, @uri.meta.uri.to_s
+          assert_equal @uri.to_s, @meta.uri.to_s
         end
       end
 
       context '.last_effective_uri' do
         should 'be a URI object' do
-          assert_kind_of URI, @uri.meta.last_effective_uri
+          assert_kind_of URI, @meta.last_effective_uri
         end
 
         should 'not have been a redirect' do
-          assert_equal @uri.to_s, @uri.meta.last_effective_uri.to_s
-          assert !@uri.meta.redirect?
+          assert_equal @uri.to_s, @meta.last_effective_uri.to_s
+          assert !@meta.redirect?
         end
       end
 
       context '.title' do
         should 'be Meta URI' do
-          assert_equal 'Meta URI', @uri.meta.title
+          assert_equal 'Meta URI', @meta.title
         end
       end
 
       context '.status' do
         should 'be 200' do
-          assert_equal 200, @uri.meta.status
+          assert_equal 200, @meta.status
         end
       end
 
       context '.headers' do
         should 'be nil' do
-          assert_nil @uri.meta.headers
+          assert_nil @meta.headers
         end
       end
 
       context '.content' do
         should 'be nil' do
-          assert_nil @uri.meta.content
+          assert_nil @meta.content
         end
       end
     end
 
-    context '.meta(:content => true)' do
+    context '.meta(:content => 1)' do
+      setup do
+        @meta = @uri.meta(:content => 1)
+      end
+
       context '.content' do
-        should 'be populated'
+        should 'be populated' do
+          assert_not_nil @meta.content
+        end
       end
 
       context '.headers' do
-        should 'be nil'
+        should 'be nil' do
+          assert_nil @meta.headers
+        end
       end
     end
 
-    context '.meta(:headers => true)' do
+    context '.meta(:headers => 1)' do
+      setup do
+        @meta = @uri.meta(:headers => 1)
+      end
+
       context '.headers' do
-        should 'be populated'
+        should 'be populated' do
+          assert_not_nil @meta.headers
+        end
       end
 
       context '.content' do
-        should 'be nil'
+        should 'be nil' do
+          assert_nil @meta.content
+        end
       end
     end
   end
