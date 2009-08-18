@@ -1,7 +1,21 @@
 require 'test_helper'
+require 'uri'
+require 'curb'
 
-# Caching off for tests
-URI::Meta::Cache.cache = nil
+class URIMetaTestCache
+  def [](key)
+    Curl::Easy.http_get('http://www.metauri.com/delete?uri=' + URI.escape(key.to_s, URI::REGEXP::PATTERN::RESERVED))
+    nil
+  end
+
+  def store(key, value, opts = {}); end
+  def expires_in(seconds); end
+end
+
+# For testing, lets hack up a cache mechanism that will force delete a URI from
+# metauri.com everytime we want meta info, so not only is it not cached here,
+# it's also not cached out there!
+URI::Meta::Cache.cache = URIMetaTestCache.new
 
 class UriMetaTest < Test::Unit::TestCase
   context 'URI.parse(http://www.metauri.com/)' do
@@ -161,10 +175,12 @@ class UriMetaTest < Test::Unit::TestCase
       assert_kind_of Array, @metas
     end
 
-    context '.first' do
-      should 'be google' do
-        assert_equal 'Google', @metas.first.title
-      end
+    should 'all be URI::Meta objects' do
+      assert @metas.all?{|m| m.kind_of? URI::Meta}
+    end
+
+    should 'contain a google meta' do
+      assert @metas.any?{|m| m.title == 'Google'}
     end
   end
 
@@ -178,6 +194,14 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'return an array' do
       assert_kind_of Array, @return_metas
+    end
+
+    should 'all be URI::Meta objects' do
+      assert @return_metas.all?{|m| m.kind_of? URI::Meta}
+    end
+
+    should 'contain a google meta' do
+      assert @return_metas.any?{|m| m.title == 'Google'}
     end
 
     context 'yielded in block' do
