@@ -14,15 +14,24 @@ uri-meta is a ruby interface to the [metauri.com](http://www.metauri.com/) servi
     uri = URI.parse('http://www.google.com/')
     puts uri.meta.title
     # Google
+    puts uri.meta.status
+    # 200
 
     uri = URI.parse('http://bit.ly/PBzu')
     puts uri.meta.content_type
     # image/gif
 
+    begin
+      meta = URI.parse('http://bit.ly/PBzu').meta(:max_redirects = 1)
+    rescue URI::Meta::Error => e
+      puts "Oh noes, too many redirects!"
+    end
+
     puts uri.meta.last_effective_uri
     # http://clipart.tiu.edu/offcampus/animated/bd13644_.gif
 
-    URI::Meta.multi('http://www.google.com/', 'http://bit.ly/PBzu') do |meta|
+    URI::Meta.multi(['http://www.google.com/', 'http://bit.ly/PBzu'], :max_redirects => 10) do |meta|
+      # Don't rely on these being processed in the same order they were listed!
       if meta.redirect?
         puts "## #{meta.uri} -> #{meta.last_effective_uri}"
       else
@@ -43,7 +52,7 @@ provided it's supported by moneta.
     URI::Meta::Cache.moneta = Moneta::Memcache.new(:server => 'localhost')
     URI::Meta::Cache.expires_in = (60 * 60 * 24 * 7) # 1 week
 
-    # No caching (if you have long running processes)
+    # No caching (for testing i guess)
     URI::Meta::Cache.moneta = nil
 
 ## Known Issues
@@ -53,6 +62,7 @@ provided it's supported by moneta.
  * Framed redirects, such as stumbleupon are not resolved yet, as these are
    techincally full pages it could be difficult to know that it's not really
    then end URI.
+ * No RDOC as yet.
 
 # Copyright
 

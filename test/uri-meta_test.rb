@@ -1,5 +1,8 @@
 require 'test_helper'
 
+# Caching off for tests
+URI::Meta::Cache.cache = nil
+
 class UriMetaTest < Test::Unit::TestCase
   context 'URI.parse(http://www.metauri.com/)' do
     context '.meta' do
@@ -39,6 +42,12 @@ class UriMetaTest < Test::Unit::TestCase
       context '.title' do
         should 'be Meta URI' do
           assert_equal 'Meta URI', @uri.meta.title
+        end
+      end
+
+      context '.status' do
+        should 'be 200' do
+          assert_equal 200, @uri.meta.status
         end
       end
 
@@ -91,6 +100,20 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
+  context 'URI.parse(http://www.metauri.com/double_redirect)' do
+    setup do
+      @uri = URI.parse('http://www.metauri.com/double_redirect')
+    end
+
+    context '.meta(:max_redirects => 1)' do
+      should 'raise error on too many redirects' do
+        assert_raise URI::Meta::Error do
+          @uri.meta(:max_redirects => 1)
+        end
+      end
+    end
+  end
+
   context 'URI.parse(garbage).meta' do
     should 'raise errors' do
       assert_raise NotImplementedError do
@@ -129,9 +152,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI::Meta.multi(http://www.google.com/, http://www.metauri.com/)' do
+  context 'URI::Meta.multi([http://www.google.com/, http://www.metauri.com/])' do
     setup do
-      @metas = URI::Meta.multi('http://www.google.com/', 'http://www.metauri.com/')
+      @metas = URI::Meta.multi(['http://www.google.com/', 'http://www.metauri.com/'])
     end
 
     should 'return an array' do
@@ -145,22 +168,16 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI::Meta.multi(http://www.google.com/, http://www.metauri.com/) {}' do
+  context 'URI::Meta.multi([http://www.google.com/, http://www.metauri.com/]) {}' do
     setup do
       @block_metas = []
-      @return_metas = URI::Meta.multi('http://www.google.com/', 'http://www.metauri.com/') do |meta|
+      @return_metas = URI::Meta.multi(['http://www.google.com/', 'http://www.metauri.com/']) do |meta|
         @block_metas << meta
       end
     end
 
     should 'return an array' do
       assert_kind_of Array, @return_metas
-    end
-
-    context '.first' do
-      should 'be google' do
-        assert_equal 'Google', @return_metas.first.title
-      end
     end
 
     context 'yielded in block' do

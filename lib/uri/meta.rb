@@ -7,21 +7,22 @@ require 'moneta/memory'
 module URI
   module Mixin
     module Meta
-      def meta
-        @meta ||= URI::Meta::Cache.get(self.to_s) || URI::Meta.new(:uri => self)
+      def meta(opts = {})
+        @meta ||= URI::Meta::Cache.get(self.to_s) || URI::Meta.new(opts.merge(:uri => self))
         URI::Meta::Cache.store(self.to_s, @meta)
+        @meta
       end
     end
   end
 
   class Meta
     class Error < ::RuntimeError; end
-    attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri
+    attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status
 
     def initialize(args)
       if args.key? :uri
         raise ArgumentError.new(":uri must be of type URI, not #{args[:uri].class}") unless args[:uri].is_a?(URI)
-        populate_from_yaml! retrieve(args[:uri])
+        populate_from_yaml! retrieve(args[:uri], args)
       elsif args.key? :yaml
         raise ArgumentError.new(":yaml must be of type Hash, not #{args[:yaml].class}") unless args[:yaml].is_a?(Hash)
         populate_from_yaml! args[:yaml]
@@ -41,29 +42,46 @@ module URI
       yaml.each{|p| send("#{p[0]}=", p[1]) if respond_to?("#{p[0]}=")}
     end
 
-    def self.multi(*uris)
+    def self.multi(uris, opts = {})
       metas = []
       curl_multi = Curl::Multi.new
       uris.each do |uri|
-        curl = Curl::Easy.new('http://www.metauri.com/show.yaml?uri=' + URI.escape(uri.to_s, URI::REGEXP::PATTERN::RESERVED))
-        curl.on_body do |yaml|
-          meta = new(:yaml => YAML.load(yaml))
+        if meta = URI::Meta::Cache.get(uri.to_s)
           metas << meta
           if block_given?
             yield meta
           end
-          yaml.size
+        else
+          curl = curl(uri, opts)
+          curl.on_body do |yaml|
+            meta = new(:yaml => YAML.load(yaml))
+            metas << meta
+            URI::Meta::Cache.store(uri.to_s, meta)
+            if block_given?
+              yield meta
+            end
+            yaml.size
+          end
+          curl_multi.add curl
         end
-        curl_multi.add curl
       end
       curl_multi.perform
       metas
     end
 
     protected
-      def retrieve(uri)
+      def self.curl(uri, opts = {})
+        curl_options = {:uri => uri}.merge(opts.reject{|k,v| k == :uri})
+        Curl::Easy.new('http://www.metauri.com/show.yaml?' + curl_options_to_string(curl_options))
+      end
+
+      def self.curl_options_to_string(opts)
+        opts.to_a.map{|x| x[0].to_s + '=' + URI.escape(x[1].to_s, URI::REGEXP::PATTERN::RESERVED)}.join('&')
+      end
+
+      def retrieve(uri, opts = {})
         raise NotImplementedError.new('Only HTTP is supported so far.') unless uri.is_a?(URI::HTTP)
-        curl = Curl::Easy.new('http://www.metauri.com/show.yaml?uri=' + URI.escape(uri.to_s, URI::REGEXP::PATTERN::RESERVED))
+        curl = self.class.curl(uri, opts)
         curl.perform
         YAML.load(curl.body_str)
       end
