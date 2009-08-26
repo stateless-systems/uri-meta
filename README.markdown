@@ -51,11 +51,12 @@ provided it's supported by moneta.
     require 'uri/meta'
 
     # Memcached
-    URI::Meta::Cache.moneta = Moneta::Memcache.new(:server => 'localhost')
+    require 'moneta/memcache'
+    URI::Meta::Cache.cache      = Moneta::Memcache.new(:server => 'localhost', :namespace => 'uri_meta')
     URI::Meta::Cache.expires_in = (60 * 60 * 24 * 7) # 1 week
 
-    # No caching (for testing i guess)
-    URI::Meta::Cache.moneta = nil
+    # No caching (for testing I guess)
+    URI::Meta::Cache.cache = nil
 
 ## Known Issues
 
