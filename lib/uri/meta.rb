@@ -44,28 +44,25 @@ module URI
 
     def self.multi(uris, opts = {})
       metas = []
+      responses = {}
       curl_multi = Curl::Multi.new
       uris.each do |uri|
         if meta = URI::Meta::Cache.get(uri.to_s)
           metas << meta
-          if block_given?
-            yield meta
-          end
         else
           curl = curl(uri, opts)
-          curl.on_body do |yaml|
-            meta = new(:yaml => YAML.load(yaml))
-            metas << meta
-            URI::Meta::Cache.store(uri.to_s, meta)
-            if block_given?
-              yield meta
-            end
-            yaml.size
-          end
+          responses[uri.to_s] = ''
+          curl.on_body{|y| responses[uri.to_s] << y; y.size}
           curl_multi.add curl
         end
       end
       curl_multi.perform
+      responses.each do |k,v|
+        meta = new(:yaml => YAML.load(v))
+        URI::Meta::Cache.store(k, meta)
+        metas << meta
+      end
+      metas.each{|m| yield m} if block_given?
       metas
     end
 
