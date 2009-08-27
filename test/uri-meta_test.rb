@@ -1,4 +1,4 @@
-require 'test_helper'
+require File.join(File.dirname(__FILE__), 'test_helper')
 require 'uri'
 require 'curb'
 
@@ -140,10 +140,8 @@ class UriMetaTest < Test::Unit::TestCase
     end
 
     context '.meta(:max_redirects => 1)' do
-      should 'raise error on too many redirects' do
-        assert_raise URI::Meta::Error do
-          @uri.meta(:max_redirects => 1)
-        end
+      should 'error on too many redirects' do
+        assert @uri.meta(:max_redirects => 1).errors?
       end
     end
   end
@@ -179,10 +177,8 @@ class UriMetaTest < Test::Unit::TestCase
   end
 
   context 'URI.parse(http://bit.ly/QYKrH).meta' do
-    should 'raise error on too many redirects' do
-      assert_raise URI::Meta::Error do
-        URI.parse('http://bit.ly/QYKrH').meta
-      end
+    should 'error on too many redirects' do
+      assert URI.parse('http://bit.ly/QYKrH').meta.errors?
     end
   end
 

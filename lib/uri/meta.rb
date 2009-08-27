@@ -5,29 +5,17 @@ require 'moneta'
 require 'moneta/memory'
 
 module URI
-  module Mixin
-    module Meta
-      def meta(opts = {})
-        @meta ||= URI::Meta::Cache.get(self.to_s) || URI::Meta.new(opts.merge(:uri => self))
-        URI::Meta::Cache.store(self.to_s, @meta)
-        @meta
-      end
-    end
-  end
-
   class Meta
-    class Error < ::RuntimeError; end
-    attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status
+    attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
 
-    def initialize(args)
-      if args.key? :uri
-        raise ArgumentError.new(":uri must be of type URI, not #{args[:uri].class}") unless args[:uri].is_a?(URI)
-        populate_from_yaml! retrieve(args[:uri], args)
-      elsif args.key? :yaml
-        raise ArgumentError.new(":yaml must be of type Hash, not #{args[:yaml].class}") unless args[:yaml].is_a?(Hash)
-        populate_from_yaml! args[:yaml]
-      else
-        raise ArgumentError.new('Required argument :yaml or :uri was missing')
+    def initialize(options = {})
+      self.errors = []
+      options.each do |k, v|
+        case k
+          when :last_effective_uri, :uri then send("#{k}=", (URI.parse(v) rescue nil))
+          when :error, :errors           then self.errors.push([v].flatten)
+          else send("#{k}=", v) if respond_to?("#{k}=")
+        end
       end
     end
 
@@ -35,53 +23,56 @@ module URI
       uri != last_effective_uri
     end
 
-    def populate_from_yaml!(yaml)
-      raise Error.new(yaml[:error]) if yaml[:error]
-      yaml[:uri] = URI.parse(yaml[:uri]) rescue yaml[:uri]
-      yaml[:last_effective_uri] = URI.parse(yaml[:last_effective_uri]) rescue yaml[:last_effective_uri]
-      yaml.each{|p| send("#{p[0]}=", p[1]) if respond_to?("#{p[0]}=")}
+    def errors?
+      !errors.empty?
     end
 
-    def self.multi(uris, opts = {})
+    def self.get(uri, options = {})
+      uri = URI.parse(uri.to_s) rescue nil
+      raise ArgumentError.new("Can't coerce #{uri.class} to URI") unless uri.is_a?(URI)
+      raise NotImplementedError.new('Only HTTP is supported so far.') unless uri.is_a?(URI::HTTP)
+      URI::Meta.multi([uri], options).first
+    end
+
+    #--
+    # TODO: Chunk uri's through a pre-warmed pool of curl easy instances?
+    def self.multi(uris, options = {}, &block)
       metas = []
-      responses = {}
-      curl_multi = Curl::Multi.new
+      multi = Curl::Multi.new
       uris.each do |uri|
         if meta = URI::Meta::Cache.get(uri.to_s)
+          URI::Meta::Cache.store(uri.to_s, meta)
           metas << meta
         else
-          curl = curl(uri, opts)
-          responses[uri.to_s] = ''
-          curl.on_body{|y| responses[uri.to_s] << y; y.size}
-          curl_multi.add curl
+          easy = curl(uri, options)
+          easy.on_complete do |curl|
+            attributes = YAML.load(curl.body_str) rescue {:errors => "Failed to load YAML: #{$!.message}"}
+            metas << meta = URI::Meta.new(attributes)
+            URI::Meta::Cache.store(uri.to_s, meta)
+            block.call(meta) if block
+          end
+          multi.add(easy)
         end
       end
-      curl_multi.perform
-      responses.each do |k,v|
-        meta = new(:yaml => YAML.load(v))
-        URI::Meta::Cache.store(k, meta)
-        metas << meta
-      end
-      metas.each{|m| yield m} if block_given?
+      multi.perform
       metas
     end
 
     protected
-      def self.curl(uri, opts = {})
-        curl_options = {:uri => uri}.merge(opts.reject{|k,v| k == :uri})
-        Curl::Easy.new('http://www.metauri.com/show.yaml?' + curl_options_to_string(curl_options))
+      #--
+      # Required because the URI option must be verbatim. If '+' and others are not escaped Merb, Rack or something
+      # helpfully converts them to spaces on metauri.com
+      def self.curl(uri, options = {})
+        options = options.update(:uri => uri)
+        options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, URI::REGEXP::PATTERN::RESERVED)}.join('&')
+        Curl::Easy.new('http://www.metauri.com/show.yaml?' + options)
       end
 
-      def self.curl_options_to_string(opts)
-        opts.to_a.map{|x| x[0].to_s + '=' + URI.escape(x[1].to_s, URI::REGEXP::PATTERN::RESERVED)}.join('&')
+    module Mixin
+      def meta(options = {})
+        @meta ||= URI::Meta.get(self, options)
       end
-
-      def retrieve(uri, opts = {})
-        raise NotImplementedError.new('Only HTTP is supported so far.') unless uri.is_a?(URI::HTTP)
-        curl = self.class.curl(uri, opts)
-        curl.perform
-        YAML.load(curl.body_str)
-      end
+    end
 
     class Cache
       @@cache      = Moneta::Memory.new
@@ -108,6 +99,6 @@ module URI
     end
   end
 
-  URI::Generic.send(:include, URI::Mixin::Meta)
-  URI::HTTP.send(:include, URI::Mixin::Meta)
+  URI::Generic.send(:include, URI::Meta::Mixin)
+  URI::HTTP.send(:include, URI::Meta::Mixin)
 end
