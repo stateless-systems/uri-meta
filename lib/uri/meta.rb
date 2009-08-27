@@ -41,13 +41,16 @@ module URI
       multi = Curl::Multi.new
       uris.each do |uri|
         if meta = URI::Meta::Cache.get(uri.to_s)
-          URI::Meta::Cache.store(uri.to_s, meta)
           metas << meta
+          URI::Meta::Cache.store(uri.to_s, meta)
+          block.call(meta) if block
         else
           easy = curl(uri, options)
           easy.on_complete do |curl|
-            attributes = YAML.load(curl.body_str) rescue {:errors => "Failed to load YAML: #{$!.message}"}
-            metas << meta = URI::Meta.new({:uri => uri}.update(attributes))
+            args = YAML.load(curl.body_str) rescue {:errors => "YAML Error, #{$!.message}"}
+            args = {:errors => "YAML Error, server returned unknown format."} unless args.is_a?(Hash)
+
+            metas << meta = URI::Meta.new({:uri => uri}.update(args))
             URI::Meta::Cache.store(uri.to_s, meta)
             block.call(meta) if block
           end
