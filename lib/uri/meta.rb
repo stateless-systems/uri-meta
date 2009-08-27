@@ -47,7 +47,7 @@ module URI
           easy = curl(uri, options)
           easy.on_complete do |curl|
             attributes = YAML.load(curl.body_str) rescue {:errors => "Failed to load YAML: #{$!.message}"}
-            metas << meta = URI::Meta.new(attributes)
+            metas << meta = URI::Meta.new({:uri => uri}.update(attributes))
             URI::Meta::Cache.store(uri.to_s, meta)
             block.call(meta) if block
           end
