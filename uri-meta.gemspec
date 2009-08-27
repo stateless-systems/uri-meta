@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{uri-meta}
-  s.version = "0.7.1"
+  s.version = "0.7.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Stateless Systems"]
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
      "lib/uri/meta.rb",
      "test/test_helper.rb",
      "test/uri-meta_test.rb",
+     "uri-meta-0.7.1.gem",
      "uri-meta.gemspec"
   ]
   s.homepage = %q{http://github.com/stateless-systems/uri-meta}
