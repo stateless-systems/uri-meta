@@ -7,6 +7,15 @@ require 'moneta/memory'
 module URI
   class Meta
     attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
+    @@service_host = "www.metauri.com"
+
+    def self.service_host
+      @@service_host
+    end
+
+    def self.service_host=(service_host)
+        @@service_host = service_host
+    end
 
     def initialize(options = {})
       self.errors = []
@@ -65,7 +74,7 @@ module URI
       def self.curl(uri, options = {})
         options = options.update(:uri => uri)
         options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, URI::REGEXP::PATTERN::RESERVED)}.join('&')
-        Curl::Easy.new('http://www.metauri.com/show.yaml?' + options)
+        Curl::Easy.new("http://#{self.service_host}/show.yaml?#{options}")
       end
 
     module Mixin
