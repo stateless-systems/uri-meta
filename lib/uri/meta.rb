@@ -13,7 +13,7 @@ module URI
       options.each do |k, v|
         case k
           when :last_effective_uri, :uri then send("#{k}=", (URI.parse(v) rescue nil))
-          when :error, :errors           then self.errors.push([v].flatten)
+          when :error, :errors           then self.errors.push(*[v].flatten)
           else send("#{k}=", v) if respond_to?("#{k}=")
         end
       end

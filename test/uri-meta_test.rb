@@ -141,7 +141,17 @@ class UriMetaTest < Test::Unit::TestCase
 
     context '.meta(:max_redirects => 1)' do
       should 'error on too many redirects' do
-        assert @uri.meta(:max_redirects => 1).errors?
+        meta = @uri.meta(:max_redirects => 1)
+        assert meta.errors?
+        assert_kind_of String, meta.errors.first
+      end
+    end
+  end
+
+  context %q{URI.parse('http://bit.ly/rvQhW').meta} do
+    should 'raise nothing' do
+      assert_nothing_raised do
+        URI.parse('http://bit.ly/rvQhW').meta
       end
     end
   end
