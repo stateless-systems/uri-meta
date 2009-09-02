@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 require 'uri'
 require 'curb'
+require 'timeout'
 
 class URIMetaTestCache
   def [](key)
@@ -237,6 +238,42 @@ class UriMetaTest < Test::Unit::TestCase
 
       should 'a google meta' do
         assert @block_metas.any?{|m| m.title == 'Google'}
+      end
+    end
+  end
+
+  context %q(URI.parse('http://www.google.com:666/')) do
+    setup do
+      @uri = URI.parse('http://www.google.com:666/')
+    end
+
+    context '.meta' do
+      should 'not return within 5 seconds' do
+        begin
+          timeout(5) do
+            meta = @uri.meta
+            assert false
+          end
+        rescue Timeout::Error => e
+          assert true
+        end
+      end
+    end
+
+    context '.meta(:connect_timeout => 1)' do
+      should 'return before 5 seconds' do
+        begin
+          timeout(5) do
+            meta = @uri.meta(:connect_timeout => 1)
+            assert true
+          end
+        rescue Timeout::Error => e
+          assert false
+        end
+      end
+
+      should 'contain timeout errors' do
+        assert @uri.meta(:connect_timeout => 1).errors?
       end
     end
   end
