@@ -75,46 +75,16 @@ class UriMetaTest < Test::Unit::TestCase
           assert_nil @meta.headers
         end
       end
-
-      context '.content' do
-        should 'be nil' do
-          assert_nil @meta.content
-        end
-      end
-    end
-
-    context '.meta(:content => 1)' do
-      setup do
-        @meta = @uri.meta(:content => 1)
-      end
-
-      context '.content' do
-        should 'be populated' do
-          assert_not_nil @meta.content
-        end
-      end
-
-      context '.headers' do
-        should 'be nil' do
-          assert_nil @meta.headers
-        end
-      end
     end
 
     context '.meta(:headers => 1)' do
       setup do
-        @meta = @uri.meta(:headers => 1)
+        @meta = URI.parse('http://www.metauri.com/').meta(:headers => 1)
       end
 
       context '.headers' do
         should 'be populated' do
           assert_not_nil @meta.headers
-        end
-      end
-
-      context '.content' do
-        should 'be nil' do
-          assert_nil @meta.content
         end
       end
     end

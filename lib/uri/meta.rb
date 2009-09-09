@@ -6,8 +6,9 @@ require 'moneta/memory'
 
 module URI
   class Meta
-    attr_accessor :headers, :content, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
-    @@service_host = "www.metauri.com"
+    attr_accessor :headers, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
+    @@service_host = 'www.metauri.com'
+    @@user_agent   = 'uri-meta rubygem'
 
     def self.service_host
       @@service_host
@@ -15,6 +16,14 @@ module URI
 
     def self.service_host=(service_host)
         @@service_host = service_host
+    end
+
+    def self.user_agent
+      @@user_agent
+    end
+
+    def self.user_agent=(user_agent)
+        @@user_agent = user_agent
     end
 
     def initialize(options = {})
@@ -75,9 +84,9 @@ module URI
       # Required because the URI option must be verbatim. If '+' and others are not escaped Merb, Rack or something
       # helpfully converts them to spaces on metauri.com
       def self.curl(uri, options = {})
-        options = options.update(:uri => uri)
-        options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, URI::REGEXP::PATTERN::RESERVED)}.join('&')
-        Curl::Easy.new("http://#{self.service_host}/show.yaml?#{options}")
+        options = options.update(:uri => uri, :user_agent => user_agent)
+        options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, URI::REGEXP::PATTERN::RESERVED).gsub(' ', '%20')}.join('&')
+        Curl::Easy.new("http://#{service_host}/show.yaml?#{options}")
       end
 
     module Mixin
