@@ -267,4 +267,34 @@ class UriMetaTest < Test::Unit::TestCase
       assert !@meta.errors?
     end
   end
+
+  context %q(URI.parse('http://www.stumbleupon.com/s/#4sDy2p/sivers.org/hellyeah').meta) do
+    setup do
+      @uri = URI.parse('http://www.stumbleupon.com/s/#4sDy2p/sivers.org/hellyeah')
+      @meta = @uri.meta
+    end
+
+    should 'be a redirect' do
+      assert @meta.redirect?
+    end
+
+    should 'not end at stumble upon' do
+      assert @meta.last_effective_uri !~ /stumble/
+    end
+  end
+
+  context %q(URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DuP6fEVR87Uo')) do
+    setup do
+      @uri = URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DuP6fEVR87Uo')
+      @meta = @uri.meta
+    end
+
+    should 'obtain the correct title through captcha' do
+      assert_equal 'YouTube - I Love You, Man - Lonnie The Voice Crack Guy', @meta.title
+    end
+
+    should 'not have changed the last_effective_uri' do
+      assert_equal @uri.to_s, @meta.uri.to_s
+    end
+  end
 end

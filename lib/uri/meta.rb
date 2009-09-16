@@ -10,7 +10,7 @@ module URI
     @@service_host = 'www.metauri.com'
     @@user_agent   = 'uri-meta rubygem'
 
-    UNSAFE = Regexp.new("[#{URI::REGEXP::PATTERN::RESERVED} #]", false, 'N').freeze
+    UNSAFE = Regexp.new("[#{URI::REGEXP::PATTERN::RESERVED} #%]", false, 'N').freeze
 
     def self.service_host
       @@service_host
