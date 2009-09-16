@@ -5,7 +5,7 @@ require 'timeout'
 
 class URIMetaTestCache
   def [](key)
-    Curl::Easy.http_get('http://www.metauri.com/delete?uri=' + URI.escape(key.to_s, URI::REGEXP::PATTERN::RESERVED))
+    Curl::Easy.http_get("http://#{URI::Meta.service_host}/delete?uri=#{URI.escape(key.to_s, URI::REGEXP::PATTERN::RESERVED)}")
     nil
   end
 
@@ -19,9 +19,9 @@ end
 URI::Meta::Cache.cache = URIMetaTestCache.new
 
 class UriMetaTest < Test::Unit::TestCase
-  context 'URI.parse(http://www.metauri.com/)' do
+  context %Q(URI.parse('http://#{URI::Meta.service_host}/')) do
     setup do
-      @uri = URI.parse('http://www.metauri.com/')
+      @uri = URI.parse("http://#{URI::Meta.service_host}/")
     end
 
     should 'respond_to :meta' do
@@ -79,7 +79,7 @@ class UriMetaTest < Test::Unit::TestCase
 
     context '.meta(:headers => 1)' do
       setup do
-        @meta = URI.parse('http://www.metauri.com/').meta(:headers => 1)
+        @meta = URI.parse("http://#{URI::Meta.service_host}/").meta(:headers => 1)
       end
 
       context '.headers' do
@@ -90,9 +90,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://www.metauri.com/redirect)' do
+  context %Q(URI.parse('http://#{URI::Meta.service_host}/redirect')) do
     setup do
-      @uri = URI.parse('http://www.metauri.com/redirect')
+      @uri = URI.parse("http://#{URI::Meta.service_host}/redirect")
     end
 
     context '.meta' do
@@ -105,9 +105,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://www.metauri.com/double_redirect)' do
+  context %Q(URI.parse('http://#{URI::Meta.service_host}'/double_redirect)) do
     setup do
-      @uri = URI.parse('http://www.metauri.com/double_redirect')
+      @uri = URI.parse("http://#{URI::Meta.service_host}/double_redirect")
     end
 
     context '.meta(:max_redirects => 1)' do
@@ -127,7 +127,7 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(garbage).meta' do
+  context %q(URI.parse('garbage').meta) do
     should 'raise errors' do
       assert_raise NotImplementedError do
         URI.parse('garbage').meta
@@ -135,17 +135,18 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://bit.ly/PBzu).meta' do
+  context %q(URI.parse('http://bit.ly/PBzu').meta) do
     setup do
-      @uri = URI.parse('http://bit.ly/PBzu')
+      @meta = URI.parse('http://bit.ly/PBzu').meta
     end
 
     should 'be a redirect' do
-      assert_not_equal 'http://bit.ly/PBzu', @uri.meta.last_effective_uri
+      assert @meta.redirect?
+      assert_not_equal 'http://bit.ly/PBzu', @meta.last_effective_uri
     end
   end
 
-  context 'URI.parse(http://taptaptap.com/+MqN).meta' do
+  context %q(URI.parse('http://taptaptap.com/+MqN').meta) do
     setup do
       @uri = URI.parse('http://taptaptap.com/+MqN')
     end
@@ -157,9 +158,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI::Meta.multi([http://www.google.com/, http://www.metauri.com/])' do
+  context %Q(URI::Meta.multi(['http://www.google.com/', "http://#{URI::Meta.service_host}/"])) do
     setup do
-      @metas = URI::Meta.multi(['http://www.google.com/', 'http://www.metauri.com/'])
+      @metas = URI::Meta.multi(['http://www.google.com/', "http://#{URI::Meta.service_host}/"])
     end
 
     should 'return an array' do
@@ -175,10 +176,10 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI::Meta.multi([http://www.google.com/, http://www.metauri.com/]) {}' do
+  context %Q(URI::Meta.multi(['http://www.google.com/', "http://#{URI::Meta.service_host}/"]) {}) do
     setup do
       @block_metas = []
-      @return_metas = URI::Meta.multi(['http://www.google.com/', 'http://www.metauri.com/']) do |meta|
+      @return_metas = URI::Meta.multi(['http://www.google.com/', "http://#{URI::Meta.service_host}/"]) do |meta|
         @block_metas << meta
       end
     end
@@ -239,6 +240,19 @@ class UriMetaTest < Test::Unit::TestCase
       should 'contain timeout errors' do
         assert @uri.meta(:connect_timeout => 1).errors?
       end
+    end
+  end
+
+  context %q(URI.parse('http://www.taobao.com/').meta) do
+    setup do
+      @uri = URI.parse('http://www.taobao.com/')
+    end
+
+    should 'not die from UTF8 issues' do
+      assert_nothing_raised do
+        @meta = @uri.meta
+      end
+      assert !@meta.errors?
     end
   end
 end
