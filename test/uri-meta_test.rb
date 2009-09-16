@@ -5,7 +5,7 @@ require 'timeout'
 
 class URIMetaTestCache
   def [](key)
-    Curl::Easy.http_get("http://#{URI::Meta.service_host}/delete?uri=#{URI.escape(key.to_s, URI::REGEXP::PATTERN::RESERVED)}")
+    Curl::Easy.http_get("http://#{URI::Meta.service_host}/delete?uri=#{URI.escape(key.to_s, URI::Meta::UNSAFE)}")
     nil
   end
 
@@ -153,8 +153,9 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'escape the + symbol' do
       assert_nothing_raised do
-        @uri.meta
+        @meta = @uri.meta
       end
+      assert !@meta.errors?
     end
   end
 
@@ -240,6 +241,17 @@ class UriMetaTest < Test::Unit::TestCase
       should 'contain timeout errors' do
         assert @uri.meta(:connect_timeout => 1).errors?
       end
+    end
+  end
+
+  context %Q(URI.parse('http://#{URI::Meta.service_host}/#foo').meta) do
+    setup do
+      @uri = URI.parse("http://#{URI::Meta.service_host}/#foo")
+      @meta = @uri.meta
+    end
+
+    should 'keep # info intact' do
+      assert_equal @uri.to_s, @meta.uri.to_s
     end
   end
 

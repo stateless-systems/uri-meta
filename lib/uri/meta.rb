@@ -10,6 +10,8 @@ module URI
     @@service_host = 'www.metauri.com'
     @@user_agent   = 'uri-meta rubygem'
 
+    UNSAFE = Regexp.new("[#{URI::REGEXP::PATTERN::RESERVED} #]", false, 'N').freeze
+
     def self.service_host
       @@service_host
     end
@@ -30,7 +32,7 @@ module URI
       self.errors = []
       options.each do |k, v|
         case k
-          when :last_effective_uri, :uri then send("#{k}=", (URI.parse(v) rescue nil))
+          when :last_effective_uri, :uri then send("#{k}=", (URI.parse(v.to_s) rescue nil))
           when :error, :errors           then self.errors.push(*[v].flatten)
           else send("#{k}=", v) if respond_to?("#{k}=")
         end
@@ -85,7 +87,7 @@ module URI
       # helpfully converts them to spaces on metauri.com
       def self.curl(uri, options = {})
         options = options.update(:uri => uri, :user_agent => user_agent)
-        options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, URI::REGEXP::PATTERN::RESERVED).gsub(' ', '%20')}.join('&')
+        options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, UNSAFE)}.join('&')
         Curl::Easy.new("http://#{service_host}/show.yaml?#{options}")
       end
 
