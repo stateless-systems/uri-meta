@@ -297,4 +297,14 @@ class UriMetaTest < Test::Unit::TestCase
       assert_equal @uri.to_s, @meta.uri.to_s
     end
   end
+
+  context %q(URI.parse('http://www.facebook.com/home.php')) do
+    setup do
+      @meta = URI.parse('http://www.facebook.com/home.php').meta
+    end
+
+    should 'correctly return 403' do
+      assert_equal 403, @meta.status
+    end
+  end
 end
