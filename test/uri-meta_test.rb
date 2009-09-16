@@ -157,12 +157,6 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context 'URI.parse(http://bit.ly/QYKrH).meta' do
-    should 'error on too many redirects' do
-      assert URI.parse('http://bit.ly/QYKrH').meta.errors?
-    end
-  end
-
   context 'URI::Meta.multi([http://www.google.com/, http://www.metauri.com/])' do
     setup do
       @metas = URI::Meta.multi(['http://www.google.com/', 'http://www.metauri.com/'])
