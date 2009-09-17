@@ -86,9 +86,11 @@ module URI
       # Required because the URI option must be verbatim. If '+' and others are not escaped Merb, Rack or something
       # helpfully converts them to spaces on metauri.com
       def self.curl(uri, options = {})
-        options = options.update(:uri => uri, :user_agent => user_agent)
+        options = options.update(:uri => uri)
         options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, UNSAFE)}.join('&')
-        Curl::Easy.new("http://#{service_host}/show.yaml?#{options}")
+        c = Curl::Easy.new("http://#{service_host}/show.yaml?#{options}")
+        c.headers['User-Agent'] = user_agent
+        c
       end
 
     module Mixin
