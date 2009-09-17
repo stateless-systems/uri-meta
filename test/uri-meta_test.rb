@@ -318,4 +318,18 @@ class UriMetaTest < Test::Unit::TestCase
       assert_equal @uri.to_s, @meta.uri.to_s
     end
   end
+
+  context %q(URI.parse('http://img11.yfrog.com/i/vaix.jpg/').meta) do
+    setup do
+      @meta = URI.parse('http://img11.yfrog.com/i/vaix.jpg/').meta
+    end
+
+    should 'have a content type' do
+      assert_not_nil @meta.content_type
+    end
+
+    should 'have a title' do
+      assert_not_nil @meta.title
+    end
+  end
 end
