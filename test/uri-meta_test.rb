@@ -13,6 +13,8 @@ class URIMetaTestCache
   def expires_in(seconds); end
 end
 
+URI::Meta.service_host = 'localhost'
+
 # For testing, lets hack up a cache mechanism that will force delete a URI from
 # metauri.com everytime we want meta info, so not only is it not cached here,
 # it's also not cached out there!
@@ -305,6 +307,17 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'correctly return 403' do
       assert_equal 403, @meta.status
+    end
+  end
+
+  context %Q(URI.parse("http://#{URI::Meta.service_host}/foo%5Bbar]")) do
+    setup do
+      @uri = URI.parse("http://#{URI::Meta.service_host}/foo%5Bbar%5D")
+      @meta = @uri.meta
+    end
+
+    should 'keep encoded square brackets intact' do
+      assert_equal @uri.to_s, @meta.uri.to_s
     end
   end
 end
