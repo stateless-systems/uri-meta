@@ -13,8 +13,6 @@ class URIMetaTestCache
   def expires_in(seconds); end
 end
 
-URI::Meta.service_host = 'localhost'
-
 # For testing, lets hack up a cache mechanism that will force delete a URI from
 # metauri.com everytime we want meta info, so not only is it not cached here,
 # it's also not cached out there!
