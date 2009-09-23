@@ -185,8 +185,9 @@ class UriMetaTest < Test::Unit::TestCase
       end
     end
 
-    should 'return an array' do
+    should 'return an array of 2' do
       assert_kind_of Array, @return_metas
+      assert_equal 2, @return_metas.size
     end
 
     should 'all be URI::Meta objects' do
@@ -198,8 +199,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
 
     context 'yielded in block' do
-      should 'all URI::Meta objects' do
+      should '2 URI::Meta objects' do
         assert @block_metas.all?{|m| m.kind_of? URI::Meta}
+        assert_equal 2, @return_metas.size
       end
 
       should 'a google meta' do
@@ -283,14 +285,14 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context %q(URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DuP6fEVR87Uo')) do
+  context %q(URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DQ1rdsFuNIMc')) do
     setup do
-      @uri = URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DuP6fEVR87Uo')
+      @uri = URI.parse('http://www.youtube.com/das_captcha?next=/watch%3Fv%3DQ1rdsFuNIMc')
       @meta = @uri.meta
     end
 
     should 'obtain the correct title through captcha' do
-      assert_equal 'YouTube - I Love You, Man - Lonnie The Voice Crack Guy', @meta.title
+      assert_equal 'YouTube - Legolibrium', @meta.title
     end
 
     should 'not have changed the last_effective_uri' do
@@ -330,6 +332,18 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'have a title' do
       assert_not_nil @meta.title
+      assert_not_equal '', @meta.title
+    end
+  end
+
+  context %q(URI.parse('http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068').meta) do
+    setup do
+      @meta = URI.parse('http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068').meta
+    end
+
+    should 'have a title' do
+      assert_not_nil @meta.title
+      assert_not_equal '', @meta.title
     end
   end
 end
