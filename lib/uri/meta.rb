@@ -3,6 +3,7 @@ require 'curb'
 require 'yaml'
 require 'moneta'
 require 'moneta/memory'
+require 'digest/sha1'
 
 module URI
   class Meta
@@ -54,15 +55,21 @@ module URI
       URI::Meta.multi([uri], options).first
     end
 
+    def self.cache_key(uri, options = {})
+      # Make sure the key includes the options used to retrieve the meta
+      uid = uri.to_s + options.to_a.sort{|a,b| a[0].to_s <=> b[0].to_s}.to_s
+      Digest::SHA1.hexdigest(uid)
+    end
+
     #--
     # TODO: Chunk uri's through a pre-warmed pool of curl easy instances?
     def self.multi(uris, options = {}, &block)
       metas = []
       multi = Curl::Multi.new
       uris.each do |uri|
-        if meta = URI::Meta::Cache.get(uri.to_s)
+        if meta = URI::Meta::Cache.get(cache_key(uri, options))
           metas << meta
-          URI::Meta::Cache.store(uri.to_s, meta)
+          URI::Meta::Cache.store(cache_key(uri, options), meta)
           block.call(meta) if block
         else
           easy = curl(uri, options)
@@ -71,7 +78,7 @@ module URI
             args = {:errors => "YAML Error, server returned unknown format."} unless args.is_a?(Hash)
 
             metas << meta = URI::Meta.new({:uri => uri}.update(args))
-            URI::Meta::Cache.store(uri.to_s, meta)
+            URI::Meta::Cache.store(cache_key(uri, options), meta)
             block.call(meta) if block
           end
           multi.add(easy)
@@ -104,12 +111,12 @@ module URI
       @@expires_in = 86_400 # 24 hours
 
       class << self
-        def store(key, url)
-          @@cache.store(key, url, :expires_in => @@expires_in) unless @@cache.nil?
+        def store(uid, obj)
+          @@cache.store(uid, obj, :expires_in => @@expires_in) unless @@cache.nil?
         end
 
-        def get(key)
-          @@cache[key] unless @@cache.nil?
+        def get(id)
+          @@cache[id] unless @@cache.nil?
         end
 
         def cache=(cache)

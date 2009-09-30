@@ -3,22 +3,28 @@ require 'uri'
 require 'curb'
 require 'timeout'
 
-class URIMetaTestCache
-  def [](key)
-    Curl::Easy.http_get("http://#{URI::Meta.service_host}/delete?uri=#{URI.escape(key.to_s, URI::Meta::UNSAFE)}")
-    nil
-  end
-
-  def store(key, value, opts = {}); end
-  def expires_in(seconds); end
-end
-
-# For testing, lets hack up a cache mechanism that will force delete a URI from
-# metauri.com everytime we want meta info, so not only is it not cached here,
-# it's also not cached out there!
-URI::Meta::Cache.cache = URIMetaTestCache.new
-
 class UriMetaTest < Test::Unit::TestCase
+  # First things first. Purge all test URIs on the metauri service so we don't
+  # get issues from old cached URIs.
+  [
+    'garbage',
+    'http://bit.ly/PBzu',
+    'http://bit.ly/rvQhW',
+    'http://img11.yfrog.com/i/vaix.jpg/',
+    'http://taptaptap.com/+MqN',
+    "http://#{URI::Meta.service_host}/",
+    "http://#{URI::Meta.service_host}/double_redirect",
+    "http://#{URI::Meta.service_host}/#foo",
+    "http://#{URI::Meta.service_host}/foo%5Bbar%5D",
+    "http://#{URI::Meta.service_host}/redirect",
+    'http://www.facebook.com/home.php',
+    'http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068',
+    'http://www.google.com:666/',
+    'http://www.stumbleupon.com/s/#4sDy2p/sivers.org/hellyeah',
+    'http://www.taobao.com/',
+    'http://www.youtube.com/das_captcha?next=/watch%3Fv%3DQ1rdsFuNIMc',
+  ].each{|uri| Curl::Easy.http_get("http://#{URI::Meta.service_host}/delete?uri=#{URI.escape(uri.to_s, URI::Meta::UNSAFE)}") }
+
   context %Q(URI.parse('http://#{URI::Meta.service_host}/')) do
     setup do
       @uri = URI.parse("http://#{URI::Meta.service_host}/")
