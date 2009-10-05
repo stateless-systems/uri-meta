@@ -13,10 +13,11 @@ class UriMetaTest < Test::Unit::TestCase
     'http://img11.yfrog.com/i/vaix.jpg/',
     'http://taptaptap.com/+MqN',
     "http://#{URI::Meta.service_host}/",
-    "http://#{URI::Meta.service_host}/double_redirect",
+    "http://#{URI::Meta.service_host}/double_redirect_test",
     "http://#{URI::Meta.service_host}/#foo",
     "http://#{URI::Meta.service_host}/foo%5Bbar%5D",
-    "http://#{URI::Meta.service_host}/redirect",
+    "http://#{URI::Meta.service_host}/meta_redirect_test",
+    "http://#{URI::Meta.service_host}/redirect_test",
     'http://www.facebook.com/home.php',
     'http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068',
     'http://www.google.com:666/',
@@ -96,9 +97,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context %Q(URI.parse('http://#{URI::Meta.service_host}/redirect')) do
+  context %Q(URI.parse('http://#{URI::Meta.service_host}/redirect_test')) do
     setup do
-      @uri = URI.parse("http://#{URI::Meta.service_host}/redirect")
+      @uri = URI.parse("http://#{URI::Meta.service_host}/redirect_test")
     end
 
     context '.meta' do
@@ -111,9 +112,9 @@ class UriMetaTest < Test::Unit::TestCase
     end
   end
 
-  context %Q(URI.parse('http://#{URI::Meta.service_host}'/double_redirect)) do
+  context %Q(URI.parse('http://#{URI::Meta.service_host}/double_redirect_test')) do
     setup do
-      @uri = URI.parse("http://#{URI::Meta.service_host}/double_redirect")
+      @uri = URI.parse("http://#{URI::Meta.service_host}/double_redirect_test")
     end
 
     context '.meta(:max_redirects => 1)' do
@@ -350,6 +351,21 @@ class UriMetaTest < Test::Unit::TestCase
     should 'have a title' do
       assert_not_nil @meta.title
       assert_not_equal '', @meta.title
+    end
+  end
+
+  context %Q(URI.parse("http://#{URI::Meta.service_host}/meta_redirect_test").meta) do
+    setup do
+      @uri = URI.parse("http://#{URI::Meta.service_host}/meta_redirect_test")
+      @meta = @uri.meta
+    end
+
+    should 'be a redirect' do
+      assert @meta.redirect?
+    end
+
+    should 'keep the original URL intact' do
+      assert_equal @uri.to_s, @meta.uri.to_s
     end
   end
 end
