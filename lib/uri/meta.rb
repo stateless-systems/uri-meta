@@ -7,7 +7,7 @@ require 'digest/sha1'
 
 module URI
   class Meta
-    attr_accessor :headers, :uri, :title, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
+    attr_accessor :headers, :uri, :title, :feed, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
     @@service_host = 'www.metauri.com'
     @@user_agent   = 'uri-meta rubygem'
 
@@ -33,8 +33,8 @@ module URI
       self.errors = []
       options.each do |k, v|
         case k
-          when :last_effective_uri, :uri then send("#{k}=", (URI.parse(v.to_s) rescue nil))
-          when :error, :errors           then self.errors.push(*[v].flatten)
+          when :last_effective_uri, :uri, :feed then send("#{k}=", (URI.parse(v.to_s) rescue nil))
+          when :error, :errors                  then self.errors.push(*[v].flatten)
           else send("#{k}=", v) if respond_to?("#{k}=")
         end
       end
