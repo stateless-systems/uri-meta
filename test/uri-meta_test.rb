@@ -11,6 +11,8 @@ class UriMetaTest < Test::Unit::TestCase
     'http://bit.ly/PBzu',
     'http://bit.ly/rvQhW',
     'http://img11.yfrog.com/i/vaix.jpg/',
+    'http://rss.slashdot.org/Slashdot/slashdot',
+    'http://slashdot.org/',
     'http://taptaptap.com/+MqN',
     "http://#{URI::Meta.service_host}/",
     "http://#{URI::Meta.service_host}/double_redirect_test",
@@ -21,7 +23,6 @@ class UriMetaTest < Test::Unit::TestCase
     'http://www.facebook.com/home.php',
     'http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068',
     'http://www.google.com:666/',
-    'http://slashdot.org/',
     'http://www.stumbleupon.com/s/#4sDy2p/sivers.org/hellyeah',
     'http://www.taobao.com/',
     'http://www.youtube.com/das_captcha?next=/watch%3Fv%3DQ1rdsFuNIMc',
@@ -382,5 +383,13 @@ class UriMetaTest < Test::Unit::TestCase
     should 'have a feed' do
       assert_equal 'http://rss.slashdot.org/Slashdot/slashdot', @meta.feed.to_s
     end
+  end
+
+  context %Q(URI.parse('http://rss.slashdot.org/Slashdot/slashdot').meta) do
+    setup do
+      @meta = URI.parse('http://rss.slashdot.org/Slashdot/slashdot').meta
+    end
+
+    should 'have a feed equal to itself'
   end
 end
