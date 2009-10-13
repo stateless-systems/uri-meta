@@ -21,6 +21,7 @@ class UriMetaTest < Test::Unit::TestCase
     'http://www.facebook.com/home.php',
     'http://www.facebook.com/pages/Bronx-NY/Career-and-Transfer-Services-at-BCC/113334355068',
     'http://www.google.com:666/',
+    'http://slashdot.org/',
     'http://www.stumbleupon.com/s/#4sDy2p/sivers.org/hellyeah',
     'http://www.taobao.com/',
     'http://www.youtube.com/das_captcha?next=/watch%3Fv%3DQ1rdsFuNIMc',
@@ -262,6 +263,10 @@ class UriMetaTest < Test::Unit::TestCase
     should 'keep # info intact' do
       assert_equal @uri.to_s, @meta.uri.to_s
     end
+
+    should 'not have a feed' do
+      assert_nil @meta.feed
+    end
   end
 
   context %q(URI.parse('http://www.taobao.com/').meta) do
@@ -366,6 +371,16 @@ class UriMetaTest < Test::Unit::TestCase
 
     should 'keep the original URL intact' do
       assert_equal @uri.to_s, @meta.uri.to_s
+    end
+  end
+
+  context %Q(URI.parse('http://slashdot.org/').meta) do
+    setup do
+      @meta = URI.parse('http://slashdot.org/').meta
+    end
+
+    should 'have a feed' do
+      assert_equal 'http://rss.slashdot.org/Slashdot/slashdot', @meta.feed.to_s
     end
   end
 end

@@ -33,7 +33,7 @@ module URI
       self.errors = []
       options.each do |k, v|
         case k
-          when :last_effective_uri, :uri, :feed then send("#{k}=", (URI.parse(v.to_s) rescue nil))
+          when :last_effective_uri, :uri, :feed then send("#{k}=", v.to_s == '' ? nil : (URI.parse(v.to_s) rescue nil))
           when :error, :errors                  then self.errors.push(*[v].flatten)
           else send("#{k}=", v) if respond_to?("#{k}=")
         end
