@@ -84,6 +84,18 @@ class UriMetaTest < Test::Unit::TestCase
           assert_nil @meta.headers
         end
       end
+
+      context '.content_type' do
+        should 'be text/html' do
+          assert_equal 'text/html', @meta.content_type
+        end
+      end
+
+      context '.charset' do
+        should 'be utf-8' do
+          assert_equal 'utf-8', @meta.charset
+        end
+      end
     end
 
     context '.meta(:headers => 1)' do
@@ -391,5 +403,23 @@ class UriMetaTest < Test::Unit::TestCase
     end
 
     should 'have a feed equal to itself'
+  end
+
+  context %Q(URI.parse('http://digg.com/educational/Can_you_teach_men_who_pick_up_prostitutes_not_to_buy_sex').meta) do
+    setup do
+      @meta = URI.parse('http://digg.com/educational/Can_you_teach_men_who_pick_up_prostitutes_not_to_buy_sex').meta
+    end
+
+    context '.content_type' do
+      should 'be text/html' do
+        assert_equal 'text/html', @meta.content_type
+      end
+    end
+
+    context '.charset' do
+      should 'be UTF-8' do
+        assert_equal 'UTF-8', @meta.charset
+      end
+    end
   end
 end
