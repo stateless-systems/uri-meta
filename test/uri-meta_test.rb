@@ -10,6 +10,7 @@ class UriMetaTest < Test::Unit::TestCase
     'garbage',
     'http://bit.ly/PBzu',
     'http://bit.ly/rvQhW',
+    'http://digg.com/educational/Can_you_teach_men_who_pick_up_prostitutes_not_to_buy_sex',
     'http://img11.yfrog.com/i/vaix.jpg/',
     'http://rss.slashdot.org/Slashdot/slashdot',
     'http://slashdot.org/',

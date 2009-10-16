@@ -4,16 +4,20 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = 'uri-meta'
-    gem.summary = 'Meta information for a URI'
+    gem.name        = 'uri-meta'
+    gem.summary     = 'Meta information for a URI'
     gem.description = 'Retrieves meta information for a URI from the meturi.com service.'
-    gem.email = 'production@statelesssystems.com'
-    gem.homepage = 'http://www.metauri.com/'
-    gem.authors = ['Stateless Systems']
-    gem.add_dependency 'taf2-curb'
-    gem.add_dependency 'wycats-moneta'
-    gem.add_development_dependency 'thoughtbot-shoulda'
+    gem.email       = 'production@statelesssystems.com'
+    gem.homepage    = 'http://www.metauri.com/'
+    gem.authors     = ['Stateless Systems']
+
+    gem.add_dependency 'curb',   '>= 0.5.4'
+    gem.add_dependency 'moneta', '>= 0.6.0'
+
+    gem.add_development_dependency 'shoulda',   '>= 2.10.2'
+    gem.add_development_dependency 'gemcutter', '>= 0.1.5'
   end
+  Jeweler::GemcutterTasks.new
 rescue LoadError
   puts 'Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler'
 end
@@ -38,20 +42,5 @@ rescue LoadError
   end
 end
 
-task :test => :check_dependencies
-
+task :test    => :check_dependencies
 task :default => :test
-
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  if File.exist?('VERSION')
-    version = File.read('VERSION')
-  else
-    version = ''
-  end
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "uri-meta #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
