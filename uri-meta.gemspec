@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{uri-meta}
-  s.version = "0.9.3"
+  s.version = "0.9.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Stateless Systems"]
-  s.date = %q{2009-10-14}
+  s.date = %q{2009-10-17}
   s.description = %q{Retrieves meta information for a URI from the meturi.com service.}
   s.email = %q{production@statelesssystems.com}
   s.extra_rdoc_files = [
@@ -44,17 +44,20 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<taf2-curb>, [">= 0"])
-      s.add_runtime_dependency(%q<wycats-moneta>, [">= 0"])
-      s.add_development_dependency(%q<thoughtbot-shoulda>, [">= 0"])
+      s.add_runtime_dependency(%q<curb>, [">= 0.5.4"])
+      s.add_runtime_dependency(%q<moneta>, [">= 0.6.0"])
+      s.add_development_dependency(%q<shoulda>, [">= 2.10.2"])
+      s.add_development_dependency(%q<gemcutter>, [">= 0.1.5"])
     else
-      s.add_dependency(%q<taf2-curb>, [">= 0"])
-      s.add_dependency(%q<wycats-moneta>, [">= 0"])
-      s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
+      s.add_dependency(%q<curb>, [">= 0.5.4"])
+      s.add_dependency(%q<moneta>, [">= 0.6.0"])
+      s.add_dependency(%q<shoulda>, [">= 2.10.2"])
+      s.add_dependency(%q<gemcutter>, [">= 0.1.5"])
     end
   else
-    s.add_dependency(%q<taf2-curb>, [">= 0"])
-    s.add_dependency(%q<wycats-moneta>, [">= 0"])
-    s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
+    s.add_dependency(%q<curb>, [">= 0.5.4"])
+    s.add_dependency(%q<moneta>, [">= 0.6.0"])
+    s.add_dependency(%q<shoulda>, [">= 2.10.2"])
+    s.add_dependency(%q<gemcutter>, [">= 0.1.5"])
   end
 end
