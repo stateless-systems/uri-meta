@@ -12,6 +12,7 @@ class UriMetaTest < Test::Unit::TestCase
     'http://bit.ly/rvQhW',
     'http://digg.com/educational/Can_you_teach_men_who_pick_up_prostitutes_not_to_buy_sex',
     'http://img11.yfrog.com/i/vaix.jpg/',
+    'http://imgur.com/GTgb4',
     'http://rss.slashdot.org/Slashdot/slashdot',
     'http://slashdot.org/',
     'http://taptaptap.com/+MqN',
@@ -421,6 +422,17 @@ class UriMetaTest < Test::Unit::TestCase
       should 'be UTF-8' do
         assert_equal 'UTF-8', @meta.charset
       end
+    end
+  end
+
+  context %Q(URI.parse('http://imgur.com/GTgb4').meta) do
+    setup do
+      @meta = URI.parse('http://imgur.com/GTgb4').meta
+    end
+
+    should 'be a redirect' do
+      assert @meta.redirect?
+      assert_not_equal 'http://imgur.com/GTgb4', @meta.last_effective_uri
     end
   end
 end
