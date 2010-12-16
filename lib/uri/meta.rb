@@ -4,6 +4,7 @@ require 'yaml'
 require 'moneta'
 require 'moneta/memory'
 require 'digest/sha1'
+require 'zlib'
 
 module URI
   class Meta
@@ -73,8 +74,8 @@ module URI
           block.call(meta) if block
         else
           easy = curl(uri, options)
-          easy.on_complete do |curl|
-            args = YAML.load(curl.body_str) rescue {:errors => "YAML Error, #{$!.message}"}
+          easy.on_complete do |req|
+            args = YAML.load(self.decode_content(req)) rescue {:errors => "YAML Error, #{$!.message}"}
             args = {:errors => "YAML Error, server returned unknown format."} unless args.is_a?(Hash)
 
             metas << meta = URI::Meta.new({:uri => uri}.update(args))
@@ -96,8 +97,24 @@ module URI
         options = options.update(:uri => uri)
         options = options.map{|k, v| "#{k}=" + URI.escape(v.to_s, UNSAFE)}.join('&')
         c = Curl::Easy.new("http://#{service_host}/show.yaml?#{options}")
-        c.headers['User-Agent'] = user_agent
+        c.headers['User-Agent']      = user_agent
+        c.headers['Accept-encoding'] = 'gzip,deflate'
         c
+      end
+
+      def self.decode_content(request)
+        if request.header_str.match(/Content-Encoding: gzip/)
+          begin
+            gz = Zlib::GzipReader.new(StringIO.new(request.body_str))
+            json = gz.read
+            gz.close
+          rescue Zlib::GzipFile::Error
+            json = request.body_str
+          end
+        else
+          json = request.body_str
+        end
+        json
       end
 
     module Mixin
