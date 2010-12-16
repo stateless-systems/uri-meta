@@ -420,7 +420,7 @@ class UriMetaTest < Test::Unit::TestCase
 
     context '.charset' do
       should 'be UTF-8' do
-        assert_equal 'UTF-8', @meta.charset
+        assert @meta.charset.match(/^utf-8$/i)
       end
     end
   end
