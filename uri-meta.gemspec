@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{uri-meta}
-  s.version = "0.9.5"
+  s.version = "0.10.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Stateless Systems"]
-  s.date = %q{2009-12-24}
+  s.date = %q{2010-12-16}
   s.description = %q{Retrieves meta information for a URI from the meturi.com service.}
   s.email = %q{production@statelesssystems.com}
   s.extra_rdoc_files = [
@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://www.metauri.com/}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Meta information for a URI}
   s.test_files = [
     "test/test_helper.rb",
