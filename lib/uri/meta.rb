@@ -33,7 +33,7 @@ module URI
     def initialize(options = {})
       self.errors = []
       options.each do |k, v|
-        case k
+        case k.to_sym
           when :last_effective_uri, :uri, :feed then send("#{k}=", v.to_s == '' ? nil : (URI.parse(v.to_s) rescue nil))
           when :error, :errors                  then self.errors.push(*[v].flatten)
           else send("#{k}=", v) if respond_to?("#{k}=")
@@ -106,15 +106,15 @@ module URI
         if request.header_str.match(/Content-Encoding: gzip/)
           begin
             gz = Zlib::GzipReader.new(StringIO.new(request.body_str))
-            json = gz.read
+            yaml = gz.read
             gz.close
-          rescue Zlib::GzipFile::Error
-            json = request.body_str
+          rescue Zlib::GzipFile::Error => e
+            yaml = request.body_str
           end
         else
-          json = request.body_str
+          yaml = request.body_str
         end
-        json
+        yaml
       end
 
     module Mixin
