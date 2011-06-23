@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{uri-meta}
-  s.version = "0.10.1"
+  s.version = "0.11.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Stateless Systems"]
-  s.date = %q{2010-12-17}
+  s.date = %q{2011-06-23}
   s.description = %q{Retrieves meta information for a URI from the meturi.com service.}
   s.email = %q{production@statelesssystems.com}
   s.extra_rdoc_files = [

@@ -8,7 +8,7 @@ require 'zlib'
 
 module URI
   class Meta
-    attr_accessor :headers, :uri, :title, :feed, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors
+    attr_accessor :headers, :uri, :title, :feed, :last_modified, :content_type, :charset, :last_effective_uri, :status, :errors, :primary_image, :primary_image_caption, :primary_image_thumbnail
     @@service_host = 'www.metauri.com'
     @@user_agent   = 'uri-meta rubygem'
 
